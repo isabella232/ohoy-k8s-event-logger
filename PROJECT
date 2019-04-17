@@ -1,0 +1,3 @@
+version: "1"
+domain: bonniernews.io
+repo: github.com/BonnierNews/ohoy-k8s-event-logger
