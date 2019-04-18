@@ -1,6 +1,6 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= bonniernews/ohoy-k8s-event-logger:latest
 
 all: test manager
 
@@ -21,10 +21,12 @@ install: manifests
 	kubectl apply -f config/crds
 
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
-deploy: manifests
-	kubectl apply -f config/crds
+deploy: docker-build docker-push manifests
+	oc new-project infra-ohoy || echo -n
 	kustomize build config/default | kubectl apply -f -
 
+dry-deploy: manifests
+	kustomize build config/default
 # Generate manifests e.g. CRD, RBAC etc.
 manifests:
 	go run vendor/sigs.k8s.io/controller-tools/cmd/controller-gen/main.go all
