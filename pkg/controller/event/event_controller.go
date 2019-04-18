@@ -18,7 +18,6 @@ package event
 
 import (
 	"context"
-	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -29,16 +28,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-/**
-* USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
-* business logic.  Delete these comments after modifying this file.*
- */
+// Setup logging
+func init() {
+	logf.SetLogger(logf.ZapLogger(false))
+}
 
-// Add creates a new Event Controller and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
-// and Start it when the Manager is Started.
+var logger = logf.Log.WithName("k8s-event-logger")
+
 func Add(mgr manager.Manager) error {
 	return add(mgr, newReconciler(mgr))
 }
@@ -102,7 +102,23 @@ func (r *ReconcileEvent) Reconcile(request reconcile.Request) (reconcile.Result,
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
-	fmt.Printf("%v:%v:%v (%v):%v:%v/%v -- %v\n", instance.InvolvedObject.Kind, instance.Type, instance.Source.Component, instance.Source.Host, instance.Namespace, instance.InvolvedObject.Namespace, instance.InvolvedObject.Name, instance.Message)
+	/* 	fmt.Printf("%v:%v:%v (%v):%v:%v/%v -- %v\n", instance.InvolvedObject.Kind,
+	instance.Type,
+	instance.Source.Component,
+	instance.Source.Host,
+	instance.Namespace,
+	instance.InvolvedObject.Namespace,
+	instance.InvolvedObject.Name,
+	instance.Message) */
+
+	logger.Info("Event", "type", instance.InvolvedObject.Kind,
+		"eventLevel", instance.Type,
+		"source", instance.Source.Component,
+		"host", instance.Source.Host,
+		"namespace", instance.Namespace,
+		"objectNamespace", instance.InvolvedObject.Namespace,
+		"objectName", instance.InvolvedObject.Name,
+		"eventMessage", instance.Message)
 
 	return reconcile.Result{}, nil
 }
